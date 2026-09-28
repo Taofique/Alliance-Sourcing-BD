@@ -40,3 +40,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .speak-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
+    min-height: 2.75rem;
+    padding: 0.9em 1.4em;
+    border-radius: 0.5em;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-image: linear-gradient(
+      325deg,
+      hsl(217 100% 56%) 0%,
+      hsl(194 100% 69%) 55%,
+      hsl(217 100% 56%) 90%
+    );
+    background-size: 280% auto;
+    background-position: left top;
+    box-shadow:
+      0 0 20px rgb(71 184 255 / 50%),
+      0 5px 5px -1px rgb(58 125 233 / 25%),
+      inset 4px 4px 8px rgb(175 230 255 / 50%),
+      inset -4px -4px 8px rgb(19 95 216 / 35%);
+    transition: background-position 0.8s ease-in-out;
+  }
+
+  .speak-link:hover {
+    background-position: right top;
+  }
+
+  .speak-link:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .speak-link {
+      transition: none;
+    }
+  }
+}
