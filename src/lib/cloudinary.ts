@@ -82,3 +82,24 @@ export async function uploadBannerImage(data: Buffer, format: "webp" | "png") {
 
   return asset;
 }
+
+/**
+ * The footer CTA background. Same bounded wide-image profile as a banner, but
+ * kept in its own folder so the two can be rotated independently and a stored
+ * CTA image can never be confused with a banner reference.
+ */
+export async function uploadFooterCtaImage(
+  data: Buffer,
+  format: "webp" | "png",
+) {
+  const asset = await uploadAsset(data, {
+    folder: "alliance-sourcing-bd/footer-cta",
+    format,
+  });
+
+  if (!asset.publicId.startsWith("alliance-sourcing-bd/footer-cta/")) {
+    throw new Error("Unexpected Cloudinary upload response.");
+  }
+
+  return asset;
+}

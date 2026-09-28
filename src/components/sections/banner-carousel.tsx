@@ -141,7 +141,7 @@ export default function BannerCarousel({
   }
 
   const renderContent = (slide: BannerSlide, isCurrent: boolean): ReactNode => (
-    <div className="absolute inset-0 flex flex-col items-center pt-12 md:pt-26 min-[1920px]:justify-center min-[1920px]:pt-0">
+    <div className="relative flex flex-col items-center px-12 pb-48 pt-12 md:pb-52 md:pt-26">
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
         <div className="text-center">
           {isCurrent ? (
@@ -202,7 +202,7 @@ export default function BannerCarousel({
           setFocusInside(false);
         }
       }}
-      className="group relative h-125 w-full overflow-hidden bg-slate-900 md:h-150 xl:h-[calc(100vh-60px)]"
+      className="group relative grid min-h-125 w-full overflow-hidden bg-slate-900 md:min-h-150 xl:min-h-[max(600px,calc(100svh-60px))]"
     >
       {slides.map((slide, slideIndex) => {
         const isCurrent = slideIndex === index;
@@ -216,7 +216,7 @@ export default function BannerCarousel({
             aria-label={`${slideIndex + 1} of ${count}`}
             aria-hidden={!isCurrent}
             inert={!isCurrent}
-            className={`absolute inset-0 transition-opacity duration-1000 motion-reduce:transition-none ${
+            className={`relative col-start-1 row-start-1 min-w-0 transition-opacity duration-1000 motion-reduce:transition-none ${
               isCurrent
                 ? "z-10 opacity-100"
                 : "pointer-events-none z-0 opacity-0"
@@ -261,7 +261,7 @@ export default function BannerCarousel({
             <ChevronRight className="size-6" aria-hidden="true" />
           </button>
 
-          <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+          <div className="absolute bottom-32 left-4 right-28 z-20 flex flex-wrap justify-center gap-2 md:bottom-36 md:left-28">
             {slides.map((slide, slideIndex) => {
               const isCurrent = slideIndex === index;
 
@@ -287,7 +287,7 @@ export default function BannerCarousel({
             onClick={() => setUserPaused((value) => !value)}
             aria-pressed={userPaused}
             aria-label={userPaused ? "Play banner rotation" : "Pause banner rotation"}
-            className="absolute bottom-6 right-6 z-20 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white/25 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="absolute bottom-30 right-4 z-20 md:bottom-34 md:right-6 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white/25 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             {userPaused || reducedMotion ? (
               <Play className="size-3.5" aria-hidden="true" />
@@ -301,3 +301,4 @@ export default function BannerCarousel({
     </section>
   );
 }
+

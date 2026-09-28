@@ -65,9 +65,85 @@
   }
 }
 
+/* Branded loader. The float and the fade-out come from the reference. */
+@keyframes loader-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.875rem);
+  }
+}
+
+.animate-bounce-soft {
+  animation: loader-float 2s ease-in-out infinite;
+}
+
+/*
+ * A last-resort, CSS-only bail for the decorative overlays. The component
+ * unmounts them long before this, but if hydration never runs the overlay is
+ * still guaranteed to clear — and clear its own pointer events — so it can
+ * never sit invisibly over the page. The real route wait has no such ceiling,
+ * because a real wait may legitimately take any amount of time.
+ */
+@keyframes loader-bail {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.loader-screen[data-decorative="true"] {
+  animation: loader-bail 0s linear 2.6s forwards;
+}
+
+/*
+ * The footer CTA cover photograph only becomes `fixed` where the browser can
+ * actually handle it: a real pointer, a wide viewport and no reduced-motion
+ * preference. Touch devices, phones and reduced-motion visitors keep the normal
+ * scrolling background, so nothing is frozen and nothing janks. No JavaScript
+ * and no scroll listener are involved.
+ */
+.cta-fixed-bg {
+  background-attachment: scroll;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and
+  (prefers-reduced-motion: no-preference) {
+  .cta-fixed-bg {
+    background-attachment: fixed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * The intro and the navigation transition are decoration over content that
+   * is already rendered, so with reduced motion they are removed from the page
+   * entirely. The `loading` fallback stays visible: it reports real progress,
+   * it just stops moving.
+   */
+  .loader-screen[data-decorative="true"] {
+    display: none;
+  }
+
+  .loader-screen {
+    transition: none;
+  }
+
+  .loader-float,
+  .loader-bar {
+    display: none;
+  }
+
+  .animate-bounce-soft {
+    animation: none;
+  }
+}
+
 @layer components {
-  .speak-link {
-    display: inline-flex;
+  .speak-link {    display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 7.5rem;

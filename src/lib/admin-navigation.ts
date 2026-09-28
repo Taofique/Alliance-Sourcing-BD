@@ -2,6 +2,8 @@ import {
   Contact,
   Images,
   LayoutDashboard,
+  Megaphone,
+  PanelBottom,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -48,6 +50,18 @@ export const adminNavigation: AdminNavGroup[] = [
         href: "/admin/settings/logos",
         icon: Images,
         description: "Upload the header brand logos.",
+      },
+      {
+        label: "Footer",
+        href: "/admin/settings/footer",
+        icon: PanelBottom,
+        description: "Links, contact details, social and legal links in the footer.",
+      },
+      {
+        label: "Footer call to action",
+        href: "/admin/settings/footer-cta",
+        icon: Megaphone,
+        description: "The cover photograph and button above the footer.",
       },
     ],
   },

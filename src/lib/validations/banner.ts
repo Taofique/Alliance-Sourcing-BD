@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  isAllowedHref as isAllowedBannerHref,
+  HREF_MESSAGE,
+} from "@/lib/validations/safe-href";
 
 const MAX_TITLE = 160;
 const MAX_DESCRIPTION = 600;
@@ -6,32 +10,10 @@ const MAX_ALT = 200;
 const MAX_CTA_TEXT = 60;
 
 /**
- * CTA destinations are limited to same-site absolute paths or HTTPS URLs.
- * Rejected: protocol-relative ("//host"), backslashes, javascript:, data:,
- * credentials in the authority, and any non-HTTPS scheme.
+ * The banner CTA and the footer share one destination policy, so it lives in
+ * safe-href.ts. Re-exported under its original name for the existing callers.
  */
-export function isAllowedBannerHref(value: string) {
-  if (value.includes("\\")) return false;
-
-  if (value.startsWith("/")) {
-    // Exactly one leading slash: "//evil.test" is protocol-relative.
-    return !value.startsWith("//");
-  }
-
-  let url: URL;
-  try {
-    url = new URL(value);
-  } catch {
-    return false;
-  }
-
-  return (
-    url.protocol === "https:" &&
-    !url.username &&
-    !url.password &&
-    url.hostname.length > 0
-  );
-}
+export { isAllowedHref as isAllowedBannerHref, HREF_MESSAGE } from "@/lib/validations/safe-href";
 
 const ctaSchema = z.object({
   text: z
@@ -45,8 +27,7 @@ const ctaSchema = z.object({
     .min(1, "Enter a destination.")
     .max(2048, "That destination is too long.")
     .refine(isAllowedBannerHref, {
-      message:
-        "Use a site path starting with one slash (for example /about) or a full https:// address.",
+      message: HREF_MESSAGE,
     }),
 });
 
