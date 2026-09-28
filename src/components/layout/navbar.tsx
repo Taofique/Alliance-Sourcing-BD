@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import Container from "@/components/layout/container";
-import { navigation, type SiteContact } from "@/lib/site";
+import { navigation } from "@/lib/site";
+import type { SiteContact } from "@/types/site-settings";
 
 type NavbarProps = {
   children: ReactNode;

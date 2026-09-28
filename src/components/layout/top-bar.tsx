@@ -1,5 +1,5 @@
 import { Mail, Phone } from "lucide-react";
-import type { SiteContact } from "@/lib/site";
+import type { SiteContact } from "@/types/site-settings";
 import Container from "@/components/layout/container";
 import LanguageNotice from "./language-notice";
 
