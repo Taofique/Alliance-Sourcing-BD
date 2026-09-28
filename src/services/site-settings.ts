@@ -2,6 +2,7 @@ import "server-only";
 
 import { connectDB } from "@/lib/db";
 import { SiteSettings } from "@/models/site-settings";
+import type { SiteContact } from "@/types/site-settings";
 import type { PublicSiteSettings } from "@/types/site-settings";
 
 export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
@@ -35,4 +36,16 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
       publicId: logo.publicId ?? null,
     })),
   };
+}
+
+export async function updateSiteContact(contact: SiteContact) {
+  await connectDB();
+
+  const result = await SiteSettings.updateOne(
+    { key: "main" },
+    { $set: { contact } },
+    { runValidators: true },
+  );
+
+  return result.matchedCount === 1;
 }

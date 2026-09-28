@@ -12,13 +12,16 @@
     "@better-auth/mongo-adapter": "^1.7.6",
     "@radix-ui/react-dialog": "^1.1.23",
     "better-auth": "^1.7.6",
+    "cloudinary": "^2.11.0",
     "lucide-react": "^1.48.0",
     "mongodb": "^7.6.0",
     "mongoose": "^9.10.2",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@next/env": "^16.3.6",
