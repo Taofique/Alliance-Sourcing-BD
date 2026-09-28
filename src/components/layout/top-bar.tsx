@@ -1,6 +1,7 @@
 import { Mail, Phone } from "lucide-react";
 import type { SiteContact } from "@/lib/site";
 import Container from "@/components/layout/container";
+import LanguageNotice from "./language-notice";
 
 type TopBarProps = {
   contact: SiteContact;
@@ -49,6 +50,7 @@ export default function TopBar({ contact }: TopBarProps) {
             ))}
           </div>
         </div>
+        <LanguageNotice />
       </Container>
     </div>
   );
