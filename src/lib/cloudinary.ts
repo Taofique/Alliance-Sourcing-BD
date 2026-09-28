@@ -1,0 +1,84 @@
+import "server-only";
+import { randomUUID } from "node:crypto";
+import { v2 as cloudinary } from "cloudinary";
+
+type CloudinaryConfig = {
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+};
+
+function getConfig(): CloudinaryConfig {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error("Cloudinary configuration is missing.");
+  }
+  return { cloudName, apiKey, apiSecret };
+}
+
+function uploadAsset(
+  data: Buffer,
+  { folder, format }: { folder: string; format: string },
+) {
+  const { cloudName, apiKey, apiSecret } = getConfig();
+
+  return new Promise<{ imageUrl: string; publicId: string }>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+        secure: true,
+        resource_type: "image",
+        folder,
+        public_id: randomUUID(),
+        overwrite: false,
+        format,
+        timeout: 60000,
+      },
+      (error, result) => {
+        if (error || !result) {
+          // SDK error objects can contain request credentials; log only the code.
+          console.error("Cloudinary upload failed", { code: error?.http_code });
+          reject(new Error("Cloudinary upload failed."));
+          return;
+        }
+        try {
+          const url = new URL(result.secure_url);
+          if (
+            url.origin !== "https://res.cloudinary.com" ||
+            !url.pathname.startsWith(`/${cloudName}/image/upload/`) ||
+            !result.public_id
+          ) {
+            throw new Error("Unexpected Cloudinary upload response.");
+          }
+          resolve({ imageUrl: result.secure_url, publicId: result.public_id });
+        } catch {
+          reject(new Error("Unexpected Cloudinary upload response."));
+        }
+      },
+    );
+    stream.on("error", () => reject(new Error("Cloudinary upload stream failed.")));
+    stream.end(data);
+  });
+}
+
+export async function uploadLogo(png: Buffer) {
+  return uploadAsset(png, { folder: "alliance-sourcing-bd/logos", format: "png" });
+}
+
+export async function uploadBannerImage(data: Buffer, format: "webp" | "png") {
+  const asset = await uploadAsset(data, {
+    folder: "alliance-sourcing-bd/banners",
+    format,
+  });
+
+  // A banner record may only ever reference an asset in the banner folder.
+  if (!asset.publicId.startsWith("alliance-sourcing-bd/banners/")) {
+    throw new Error("Unexpected Cloudinary upload response.");
+  }
+
+  return asset;
+}

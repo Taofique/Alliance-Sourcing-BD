@@ -49,3 +49,18 @@ export async function updateSiteContact(contact: SiteContact) {
 
   return result.matchedCount === 1;
 }
+
+export async function siteLogoExists(logoKey: string) {
+  await connectDB();
+  return Boolean(await SiteSettings.exists({ key: "main", "logos.key": logoKey }));
+}
+
+export async function updateSiteLogo(logoKey: string, image: { imageUrl: string; publicId: string }) {
+  await connectDB();
+  const result = await SiteSettings.updateOne(
+    { key: "main", "logos.key": logoKey },
+    { $set: { "logos.$.imageUrl": image.imageUrl, "logos.$.publicId": image.publicId } },
+    { runValidators: true, upsert: false },
+  );
+  return result.matchedCount === 1;
+}
