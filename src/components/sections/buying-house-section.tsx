@@ -36,9 +36,16 @@ export default function BuyingHouseSection() {
       className="bg-blue-50 py-14 md:py-20"
     >
       <Container>
-        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 lg:gap-12">
+        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:items-stretch lg:gap-12">
+          {/*
+            `professional-buying-house-static-image.jpg` is 1024x1024. The old
+            4/3 -> 16/10 -> 28rem `object-cover` box cropped a square photo
+            badly, so the box now keeps the photo's own square ratio on mobile
+            and stretches to the text column on desktop, with `object-contain`
+            guaranteeing the whole frame stays visible.
+          */}
           <div
-            className={`relative aspect-4/3 overflow-hidden rounded-2xl sm:aspect-16/10 md:aspect-auto md:h-[28rem] ${
+            className={`relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-100 md:h-full md:aspect-auto ${
               imageFirst ? "" : "md:order-2"
             }`}
           >

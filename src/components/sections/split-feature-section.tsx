@@ -47,11 +47,10 @@ export default function SplitFeatureSection({
   return (
     <section
       aria-labelledby={id}
-      className={`py-14 md:py-20 ${
-        section.tinted
-          ? "bg-linear-to-b from-blue-50 to-white"
-          : "bg-white"
-      }`}
+      // The reference tints the whole band with a solid `bg-blue-50`. The
+      // previous `from-blue-50 to-white` gradient let the lower half, bottom
+      // padding included, fade back out to the white page behind it.
+      className={`py-14 md:py-20 ${section.tinted ? "bg-blue-50" : "bg-white"}`}
     >
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 lg:gap-16">

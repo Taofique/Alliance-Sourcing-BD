@@ -84,7 +84,12 @@ export type SourcingSolution = {
   id: string;
   title: string;
   description: string;
-  icon: HomepageIconKey;
+  /**
+   * The reference's real service-card artwork, bundled in
+   * `public/icons/buying-house-services`. Not a lucide glyph: the original
+   * cards use 512x512 transparent PNGs, not line icons.
+   */
+  icon: string;
 };
 
 export type SourcingSolutions = {

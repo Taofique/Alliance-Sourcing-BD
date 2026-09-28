@@ -192,42 +192,42 @@ export const sourcingSolutions: SourcingSolutions = {
       title: "Product development & sampling",
       description:
         "We create samples that perfectly match your vision, ensuring precision, quality, and attention to every detail.",
-      icon: "sampling",
+      icon: "/icons/buying-house-services/product-development-sampling.png",
     },
     {
       id: "supplier-evaluation",
       title: "Supplier selection & evaluation",
       description:
         "We find reliable manufacturers meeting your standards, ensuring quality, consistency, and excellence.",
-      icon: "supplier",
+      icon: "/icons/buying-house-services/supplier-selection-evaluation.png",
     },
     {
       id: "negotiation-placement",
       title: "Price negotiation & order placement",
       description:
         "We secure the best terms for your orders, ensuring competitive pricing, favorable conditions, and smooth transactions.",
-      icon: "negotiation",
+      icon: "/icons/buying-house-services/price-negotiation-order-placement.png",
     },
     {
       id: "follow-up-inspection",
       title: "Production follow-up & quality inspection",
       description:
         "We monitor every batch from loom to shipment, ensuring consistent quality, accuracy, and timely delivery.",
-      icon: "inspection",
+      icon: "/icons/buying-house-services/production-follow-up-quality-inspection.png",
     },
     {
       id: "compliance-assistance",
       title: "Compliance assistance",
       description:
         "We work with factories aligned with international buyer standards and ethical practices.",
-      icon: "compliance",
+      icon: "/icons/buying-house-services/compliance-assistance.png",
     },
     {
       id: "shipping-coordination",
       title: "Shipping coordination",
       description:
         "Documentation support and shipment coordination with partners for smooth delivery.",
-      icon: "shipping",
+      icon: "/icons/buying-house-services/shipping-coordination.png",
     },
   ],
 };

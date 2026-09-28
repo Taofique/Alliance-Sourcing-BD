@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Container from "@/components/layout/container";
 import SectionHeading from "@/components/common/section-heading";
-import SectionIcon from "@/components/common/section-icon";
 import { sourcingSolutions } from "@/lib/homepage-sections";
 import type { SourcingSolution } from "@/types/homepage-sections";
 
@@ -8,12 +8,15 @@ function SolutionCard({ solution }: { solution: SourcingSolution }) {
   return (
     <li className="flex">
       <article className="group flex w-full flex-col rounded-xl bg-white p-5 shadow-[0_0_10px_rgba(0,0,0,0.08)] transition-[transform,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:bg-[#0C97D5] hover:shadow-[0_0_20px_rgba(6,182,212,0.45)] motion-reduce:transform-none motion-reduce:transition-none">
-        <div className="mb-6 flex size-12 items-center justify-center rounded-lg bg-cyan-50 transition-colors duration-300 group-hover:bg-white/15 motion-reduce:transition-none">
-          <SectionIcon
-            name={solution.icon}
-            className="size-7 text-cyan-600 transition-colors duration-300 group-hover:text-white motion-reduce:transition-none"
-          />
-        </div>
+        {/* The reference cards draw a 48px 512x512 transparent PNG, not a
+            line glyph, so there is no tinted icon tile behind it. */}
+        <Image
+          src={solution.icon}
+          alt=""
+          width={48}
+          height={48}
+          className="mb-6 size-12 shrink-0"
+        />
 
         <h3 className="font-heading mb-2 text-base font-semibold text-slate-900 group-hover:text-white sm:text-lg">
           {solution.title}
