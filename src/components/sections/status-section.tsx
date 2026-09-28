@@ -15,8 +15,10 @@ export default function StatusSection({ overlap }: { overlap: boolean }) {
         <div className="rounded-2xl bg-blue-950 px-6 py-8 text-white shadow-xl md:px-10">
           <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
             {highlights.map((item) => (
-              <li key={item.image} className="flex flex-col items-center gap-4 text-center">
-                <Image src={item.image} alt="" width={96} height={96} sizes="(min-width: 768px) 96px, 80px" className="size-20 object-contain md:size-24" />
+              <li key={item.image} className="group flex flex-col items-center gap-4 text-center">
+                <div className="size-20 transition-transform duration-300 ease-out motion-safe:group-hover:scale-110 motion-reduce:transition-none md:size-24">
+                  <Image src={item.image} alt="" width={96} height={96} sizes="(min-width: 768px) 96px, 80px" className="size-20 object-contain md:size-24" />
+                </div>
                 <p className="max-w-[200px] text-sm leading-relaxed">{item.text}</p>
               </li>
             ))}

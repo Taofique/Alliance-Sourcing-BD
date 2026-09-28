@@ -25,7 +25,7 @@ export type AdminNavGroup = {
 
 /**
  * Only working editor links are listed. Sections still to be built — statistics,
- * sourcing, features, workflow, services, catalog, CTA, About, Factory &
+ * features, workflow, services, catalog, CTA, About, Factory &
  * machinery, Sister concern, Global partners and Products — are added here as
  * their routes land, so no placeholder or dead link is ever rendered.
  */
@@ -74,6 +74,12 @@ export const adminNavigation: AdminNavGroup[] = [
         href: "/admin/banners",
         icon: Images,
         description: "Manage the homepage banner carousel slides.",
+      },
+      {
+        label: "What we source",
+        href: "/admin/home/sourcing",
+        icon: Images,
+        description: "Manage sourcing categories and section settings.",
       },
     ],
   },

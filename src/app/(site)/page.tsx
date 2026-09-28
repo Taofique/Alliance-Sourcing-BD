@@ -1,6 +1,6 @@
 import StatusSection from "@/components/sections/status-section";
 import SourcingSection from "@/components/sections/sourcing-section";
-import { getSourcingCategories } from "@/services/sourcing";
+import { getSourcingCategories, getSourcingSettings } from "@/services/sourcing";
 import BannerCarousel from "@/components/sections/banner-carousel";
 import FooterCtaSection from "@/components/sections/footer-cta-section";
 import { getPublishedBanners } from "@/services/banners";
@@ -10,11 +10,11 @@ export default async function HomePage() {
   // Read straight from the service: a Server Component never calls our own API.
   // The layout has already read the settings for the header, footer and loader;
   // the homepage reads again only for the CTA section it alone renders.
-  const [slides, settings, categories] = await Promise.all([
+  const [slides, settings, categories, sourcingSettings] = await Promise.all([
     getPublishedBanners(),
     getPublicSiteSettings(),
     getSourcingCategories(),
-
+    getSourcingSettings(),
   ]);
 
   return (
@@ -24,7 +24,7 @@ export default async function HomePage() {
       </section>
       <div className="bg-gray-50/50">
         <StatusSection overlap={slides.length > 0} />
-        <SourcingSection categories={categories} />
+        <SourcingSection categories={categories} settings={sourcingSettings} />
       </div>
 
       {/*

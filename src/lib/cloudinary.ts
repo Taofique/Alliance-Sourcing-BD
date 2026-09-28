@@ -103,3 +103,12 @@ export async function uploadFooterCtaImage(
 
   return asset;
 }
+
+/** Category photographs share the existing bounded image processing pipeline. */
+export async function uploadSourcingImage(data: Buffer, format: "webp" | "png") {
+  const asset = await uploadAsset(data, { folder: "alliance-sourcing-bd/sourcing", format });
+  if (!asset.publicId.startsWith("alliance-sourcing-bd/sourcing/")) {
+    throw new Error("Unexpected Cloudinary upload response.");
+  }
+  return asset;
+}
