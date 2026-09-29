@@ -6,6 +6,7 @@ import {
   Images,
   LayoutDashboard,
   Megaphone,
+  MessagesSquare,
   Package,
   PanelBottom,
   Settings,
@@ -30,9 +31,10 @@ export type AdminNavGroup = {
 
 /**
  * Only working editor links are listed. Sections still to be built — statistics,
- * features, workflow, services, catalog, CTA, About, Sister concern and Global
- * partners — are added here as their routes land, so no placeholder or dead link
- * is ever rendered.
+ * features, workflow, services, catalog, CTA, About and Sister concern — are
+ * added here as their routes land, so no placeholder or dead link is ever
+ * rendered. Global partners has landed, and only its FAQ is editable; the rest
+ * of that page is static copy, so it has no editor to link to.
  */
 export const adminNavigation: AdminNavGroup[] = [
   {
@@ -97,6 +99,12 @@ export const adminNavigation: AdminNavGroup[] = [
         href: "/admin/pages/about-banner",
         icon: Images,
         description: "The cover photograph behind the About page heading.",
+      },
+      {
+        label: "Global partners FAQs",
+        href: "/admin/faqs",
+        icon: MessagesSquare,
+        description: "The questions and answers published on the Global Partners page.",
       },
     ],
   },

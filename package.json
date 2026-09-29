@@ -12,9 +12,11 @@
     "test:logo": "node --require tsx/cjs --test scripts/logo-upload.test.cjs",
     "test:banner": "node --require tsx/cjs --test scripts/banner-api.test.cjs scripts/banner-render.test.cjs",
     "test:machinery": "node --require tsx/cjs --test scripts/machinery-schema.test.cjs scripts/machinery-route.test.cjs",
+    "test:faq": "node --require tsx/cjs --test scripts/faq-schema.test.cjs scripts/faq-route.test.cjs scripts/faq-render.test.cjs",
     "init:sourcing": "node --conditions=react-server --import tsx scripts/init-sourcing.ts",
     "init:machinery": "node --conditions=react-server --import tsx scripts/init-machinery.ts",
     "init:products": "node --conditions=react-server --import tsx scripts/init-products.ts",
+    "init:faqs": "node --conditions=react-server --import tsx scripts/init-faqs.ts",
     "migrate:product-images": "node --conditions=react-server --import tsx scripts/migrate-product-images.ts",
     "verify:product-images": "node --conditions=react-server --import tsx scripts/verify-product-images.ts"
   },
