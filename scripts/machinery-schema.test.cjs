@@ -24,8 +24,17 @@ process.env.CLOUDINARY_CLOUD_NAME = CLOUD;
 const ID = "a".repeat(24);
 const OTHER_ID = "b".repeat(24);
 const FOLDER = "alliance-sourcing-bd/documents";
-const pdf = (publicId = "alliance-sourcing-bd/documents/factory-profile1") => ({
-  url: `https://res.cloudinary.com/${CLOUD}/raw/upload/v1/${publicId}.pdf`,
+
+/*
+ * A real answer from Cloudinary for a `raw` upload with `format: "pdf"`. The
+ * extension sits inside the public id, not only on the delivery url, which is
+ * what the editor actually receives. The bare-name variant is kept because a
+ * previous version of this file invented it and every test here passed against
+ * a shape the API never returns.
+ */
+const PDF_UUID = "26939278-4a91-435d-909f-aaa54dc879a7";
+const pdf = (publicId = `${FOLDER}/${PDF_UUID}.pdf`) => ({
+  url: `https://res.cloudinary.com/${CLOUD}/raw/upload/v1790659043/${publicId}`,
   publicId,
   fileName: "factory-profile.pdf",
 });
@@ -168,17 +177,39 @@ test("accepts a genuine factory PDF upload", () => {
   assert.equal(r.success, true, r.error?.issues[0]?.message);
 });
 
+test("accepts the extension inside the publicId, as Cloudinary returns it", () => {
+  // The exact pair produced by a raw upload: the id keeps `.pdf` and the
+  // delivery url points at that same id. This is the case that was refused,
+  // which made every PDF uploadable and unsaveable at the same time.
+  const fromApi = {
+    publicId: `${FOLDER}/${PDF_UUID}.pdf`,
+    url: `https://res.cloudinary.com/${CLOUD}/raw/upload/v1790659043/${FOLDER}/${PDF_UUID}.pdf`,
+    fileName: "factory-profile.pdf",
+  };
+  const r = factoryPdfSchema.safeParse(fromApi);
+  assert.equal(r.success, true, r.error?.issues[0]?.message);
+  assert.equal(factoryPdfSaveSchema.safeParse({ pdf: fromApi }).success, true);
+});
+
 test("a PDF is delivered as a raw asset, so an image path is rejected", () => {
   const wrong = {
-    url: `https://res.cloudinary.com/${CLOUD}/image/upload/v1/${FOLDER}/factory-profile1.pdf`,
-    publicId: `${FOLDER}/factory-profile1`,
+    url: `https://res.cloudinary.com/${CLOUD}/image/upload/v1/${FOLDER}/${PDF_UUID}.pdf`,
+    publicId: `${FOLDER}/${PDF_UUID}.pdf`,
     fileName: "factory-profile.pdf",
   };
   assert.equal(factoryPdfSchema.safeParse(wrong).success, false);
 });
 
 test("rejects a publicId from another folder (cross-folder guard)", () => {
-  const r = factoryPdfSchema.safeParse(pdf("alliance-sourcing-bd/page-banners/abcdefgh-1234"));
+  const r = factoryPdfSchema.safeParse(pdf("alliance-sourcing-bd/page-banners/abcdefgh-1234.pdf"));
+  assert.equal(r.success, false);
+});
+
+test("rejects a publicId naming a different file type", () => {
+  const r = factoryPdfSchema.safeParse({
+    ...pdf(),
+    publicId: `${FOLDER}/${PDF_UUID}.exe`,
+  });
   assert.equal(r.success, false);
 });
 
@@ -192,8 +223,8 @@ test("rejects a non-Cloudinary host", () => {
 
 test("rejects a url whose publicId does not match the path", () => {
   const r = factoryPdfSchema.safeParse({
-    ...pdf(`${FOLDER}/factory-profile1`),
-    url: `https://res.cloudinary.com/${CLOUD}/raw/upload/v1/${FOLDER}/somebody-elses1.pdf`,
+    ...pdf(),
+    url: `https://res.cloudinary.com/${CLOUD}/raw/upload/v1790659043/${FOLDER}/somebody-elses1.pdf`,
   });
   assert.equal(r.success, false);
 });

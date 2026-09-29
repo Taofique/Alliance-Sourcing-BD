@@ -95,15 +95,27 @@ export const FACTORY_PDF_ACCEPT = "application/pdf";
 export const MAX_FACTORY_PDF_BYTES = 10 * 1024 * 1024;
 export const FACTORY_PDF_SIZE_MESSAGE = "The PDF must be 10 MB or smaller.";
 
+/*
+ * A raw asset's public id carries its extension — Cloudinary answered
+ * `alliance-sourcing-bd/documents/<uuid>.pdf` for a `raw` upload with
+ * `format: "pdf"`, where an image upload answers with a bare id. Requiring an
+ * id that ends at the name meant every PDF uploaded through the editor was
+ * refused by the very save it was uploaded for. Both shapes are accepted; the
+ * url check below still pins the pair to one exact asset.
+ *
+ * The folder is escaped because it is interpolated: a folder name holding a
+ * `.` or `(` would otherwise quietly change what the pattern matches.
+ */
+const FACTORY_PDF_PUBLIC_ID = new RegExp(
+  `^${FACTORY_PDF_FOLDER.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[A-Za-z0-9_-]{8,64}(?:\\.pdf)?$`,
+);
+
 export const factoryPdfSchema = z
   .object({
     url: z.string().trim().min(1, "Upload the factory profile PDF.").max(2048),
     publicId: z
       .string()
-      .regex(
-        new RegExp(`^${FACTORY_PDF_FOLDER}/[A-Za-z0-9_-]{8,64}$`),
-        "Use a PDF uploaded through this editor.",
-      ),
+      .regex(FACTORY_PDF_PUBLIC_ID, "Use a PDF uploaded through this editor."),
     fileName: z
       .string()
       .trim()
@@ -130,7 +142,7 @@ export const factoryPdfSchema = z
         const path = parsed.pathname
           .slice(prefix.length)
           .replace(/^v\d+\//, "");
-        return path === `${publicId}.pdf`;
+        return path === publicId || path === `${publicId}.pdf`;
       } catch {
         return false;
       }
