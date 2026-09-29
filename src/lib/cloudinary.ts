@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 import { PAGE_BANNER_FOLDER } from "@/lib/page-banner-defaults";
+import { FACTORY_PDF_FOLDER } from "@/lib/machinery-defaults";
 
 type CloudinaryConfig = {
   cloudName: string;
@@ -134,4 +135,58 @@ export async function uploadSourcingImage(data: Buffer, format: "webp" | "png") 
     throw new Error("Unexpected Cloudinary upload response.");
   }
   return asset;
+}
+
+/**
+ * The factory profile PDF behind the "Own Factory" buttons.
+ *
+ * Uploaded as a `raw` asset rather than an image: a document must be delivered
+ * exactly as it was supplied, so it skips the image pipeline, the resize and
+ * the format conversion entirely. Its own folder keeps a document reference
+ * from ever being accepted where a photograph is expected.
+ */
+export async function uploadFactoryPdf(data: Buffer) {
+  const { cloudName, apiKey, apiSecret } = getConfig();
+
+  return new Promise<{ url: string; publicId: string }>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+        secure: true,
+        resource_type: "raw",
+        folder: FACTORY_PDF_FOLDER,
+        public_id: randomUUID(),
+        overwrite: false,
+        format: "pdf",
+        timeout: 60000,
+      },
+      (error, result) => {
+        if (error || !result) {
+          // SDK error objects can contain request credentials; log only the code.
+          console.error("Cloudinary PDF upload failed", { code: error?.http_code });
+          reject(new Error("Cloudinary upload failed."));
+          return;
+        }
+        try {
+          const url = new URL(result.secure_url);
+          if (
+            url.origin !== "https://res.cloudinary.com" ||
+            !url.pathname.startsWith(`/${cloudName}/raw/upload/`) ||
+            !result.public_id
+          ) {
+            throw new Error("Unexpected Cloudinary upload response.");
+          }
+          resolve({ url: result.secure_url, publicId: result.public_id });
+        } catch {
+          reject(new Error("Unexpected Cloudinary upload response."));
+        }
+      },
+    );
+    stream.on("error", () =>
+      reject(new Error("Cloudinary upload stream failed.")),
+    );
+    stream.end(data);
+  });
 }

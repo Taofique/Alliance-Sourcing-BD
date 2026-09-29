@@ -1,5 +1,45 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Factory & Machinery page
+
+The `/factory-machinery` page is part static and part database-driven:
+
+- **Static** (no database): the hero, the "Own Factory" copy, the "Advanced
+  Machinery" cards and the closing call to action, with the bundled photographs.
+- **Database**: the machinery inventory tables, and the factory profile PDF.
+
+### One-time setup: seed the inventory
+
+There are no SQL migrations in this project — the equivalents are the Mongoose
+indexes plus an idempotent seed script. Run it once per environment:
+
+```bash
+npm run init:machinery
+```
+
+It creates the unique indexes on the category name and slug, and inserts the 4
+categories and 25 machines (9 cutting, 8 sewing, 5 finishing, 3 embroidery — 293
+units in total) if they are not already there.
+Running it again is safe: it reports `Added 0 categories and 0 items` and leaves
+anything an admin has edited alone.
+
+### Editing the inventory
+
+Sign in at `/admin/login`, then use the **Machinery** group in the sidebar:
+
+| Page | What it edits |
+| --- | --- |
+| `/admin/machinery/categories` | Category names, slugs, display order. Deleting a category also deletes its machines, after a confirmation that counts them. |
+| `/admin/machinery/items` | Every machine: name, brand, quantity, row number and category, with search, a category filter and paging. |
+| `/admin/machinery/factory-pdf` | Uploads the factory profile PDF to Cloudinary (10 MB max) and publishes or removes it. |
+
+Category totals and the grand total are summed from `quantity` every time the
+inventory is read, so they can never drift from the rows above them, and a saved
+change is on the public page immediately.
+
+See [`docs/machinery-inventory.md`](docs/machinery-inventory.md) for the data
+model and request flow.
+
 ## Getting Started
 
 First, run the development server:

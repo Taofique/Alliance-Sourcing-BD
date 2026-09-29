@@ -11,7 +11,9 @@
     "test": "node --require tsx/cjs --test scripts/*.test.cjs",
     "test:logo": "node --require tsx/cjs --test scripts/logo-upload.test.cjs",
     "test:banner": "node --require tsx/cjs --test scripts/banner-api.test.cjs scripts/banner-render.test.cjs",
-    "init:sourcing": "node --conditions=react-server --import tsx scripts/init-sourcing.ts"
+    "test:machinery": "node --require tsx/cjs --test scripts/machinery-schema.test.cjs scripts/machinery-route.test.cjs",
+    "init:sourcing": "node --conditions=react-server --import tsx scripts/init-sourcing.ts",
+    "init:machinery": "node --conditions=react-server --import tsx scripts/init-machinery.ts"
   },
   "dependencies": {
     "@better-auth/mongo-adapter": "^1.7.6",

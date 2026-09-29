@@ -1,5 +1,8 @@
 import {
+  Boxes,
   Contact,
+  Factory,
+  FileText,
   Images,
   LayoutDashboard,
   Megaphone,
@@ -25,9 +28,9 @@ export type AdminNavGroup = {
 
 /**
  * Only working editor links are listed. Sections still to be built — statistics,
- * features, workflow, services, catalog, CTA, About, Factory &
- * machinery, Sister concern, Global partners and Products — are added here as
- * their routes land, so no placeholder or dead link is ever rendered.
+ * features, workflow, services, catalog, CTA, About, Sister concern, Global
+ * partners and Products — are added here as their routes land, so no
+ * placeholder or dead link is ever rendered.
  */
 export const adminNavigation: AdminNavGroup[] = [
   {
@@ -92,6 +95,30 @@ export const adminNavigation: AdminNavGroup[] = [
         href: "/admin/pages/about-banner",
         icon: Images,
         description: "The cover photograph behind the About page heading.",
+      },
+    ],
+  },
+  {
+    label: "Machinery",
+    icon: Factory,
+    children: [
+      {
+        label: "Categories",
+        href: "/admin/machinery/categories",
+        icon: Boxes,
+        description: "The groups shown on the Factory & Machinery page.",
+      },
+      {
+        label: "Machines",
+        href: "/admin/machinery/items",
+        icon: Factory,
+        description: "Every machine, its quantity and where it sits in the table.",
+      },
+      {
+        label: "Factory profile PDF",
+        href: "/admin/machinery/factory-pdf",
+        icon: FileText,
+        description: "The document behind the Own Factory download buttons.",
       },
     ],
   },

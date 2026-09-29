@@ -9,6 +9,8 @@ type BoundedImageFormDataOptions = {
   /** Every field must be present exactly once; a single "file" is required. */
   extraFields: string[];
   sizeMessage: string;
+  /** Overrides the wording of the "nothing usable arrived" errors. */
+  emptyMessage?: string;
 };
 
 /**
@@ -17,10 +19,11 @@ type BoundedImageFormDataOptions = {
  */
 export async function readBoundedImageFormData(
   request: Request,
-  { maxBytes, extraFields, sizeMessage }: BoundedImageFormDataOptions,
+  { maxBytes, extraFields, sizeMessage, emptyMessage }: BoundedImageFormDataOptions,
 ) {
   const maxRequestBytes = maxBytes + MAX_IMAGE_REQUEST_OVERHEAD;
   const contentType = request.headers.get("content-type") ?? "";
+  const empty = emptyMessage ?? "Choose an image and try again.";
 
   if (!/^multipart\/form-data\s*;/i.test(contentType)) {
     throw new ImageInputError("Send multipart form data.", 415);
@@ -66,13 +69,15 @@ export async function readBoundedImageFormData(
       extraFields.some((field) => form.getAll(field).length !== 1)
     ) {
       throw new ImageInputError(
-        `Send exactly one file and ${extraFields.join(" and ")}.`,
+        extraFields.length
+          ? `Send exactly one file and ${extraFields.join(" and ")}.`
+          : "Send exactly one file.",
       );
     }
 
     const file = form.get("file");
     if (!(file instanceof File) || !file.size) {
-      throw new ImageInputError("Choose an image and try again.");
+      throw new ImageInputError(empty);
     }
     if (file.size > maxBytes) throw new ImageInputError(sizeMessage, 413);
 
@@ -80,7 +85,7 @@ export async function readBoundedImageFormData(
     for (const field of extraFields) {
       const value = form.get(field);
       if (typeof value !== "string") {
-        throw new ImageInputError("Choose an image and try again.");
+        throw new ImageInputError(empty);
       }
       fields[field] = value;
     }

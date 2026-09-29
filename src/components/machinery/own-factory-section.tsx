@@ -1,0 +1,59 @@
+import Container from "@/components/layout/container";
+import { factoryMachineryContent } from "@/lib/factory-machinery-sections";
+import type { FactoryPdf } from "@/types/machinery";
+
+type OwnFactorySectionProps = {
+  /** The admin-managed factory profile document, or null when none is stored. */
+  pdf: FactoryPdf | null;
+};
+
+/**
+ * "Own Factory": the section that points readers at the factory profile PDF.
+ *
+ * The document is managed from the admin, so both buttons are rendered only
+ * when one is actually stored — an empty link would advertise a brochure that
+ * is not there.
+ */
+export default function OwnFactorySection({ pdf }: OwnFactorySectionProps) {
+  const content = factoryMachineryContent.ownFactory;
+
+  return (
+    <section aria-labelledby="own-factory-heading" className="bg-white py-14 md:py-20">
+      <Container>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2
+            id="own-factory-heading"
+            className="font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl"
+          >
+            {content.heading}
+          </h2>
+
+          <p className="mt-4 font-heading text-xl font-semibold text-slate-700 sm:text-2xl">
+            {content.subheading}
+          </p>
+
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+            {content.description}
+          </p>
+
+          {pdf && (
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              {content.actions.map((action) => (
+                <a
+                  key={action.label}
+                  href={pdf.url}
+                  {...(action.download
+                    ? { download: pdf.fileName }
+                    : { target: "_blank", rel: "noopener noreferrer" })}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:w-auto"
+                >
+                  {action.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </Container>
+    </section>
+  );
+}
