@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 import { PAGE_BANNER_FOLDER } from "@/lib/page-banner-defaults";
 import { FACTORY_PDF_FOLDER } from "@/lib/machinery-defaults";
+import { PRODUCT_IMAGE_FOLDER } from "@/lib/product-defaults";
 
 type CloudinaryConfig = {
   cloudName: string;
@@ -132,6 +133,22 @@ export async function uploadPageBannerImage(
 export async function uploadSourcingImage(data: Buffer, format: "webp" | "png") {
   const asset = await uploadAsset(data, { folder: "alliance-sourcing-bd/sourcing", format });
   if (!asset.publicId.startsWith("alliance-sourcing-bd/sourcing/")) {
+    throw new Error("Unexpected Cloudinary upload response.");
+  }
+  return asset;
+}
+
+/**
+ * Product photographs, in a folder of their own so a stored product can never be
+ * confused with a banner or a sourcing photograph. Reuses the same bounded
+ * upload pipeline; only the folder differs.
+ */
+export async function uploadProductImage(data: Buffer, format: "webp" | "png") {
+  const asset = await uploadAsset(data, {
+    folder: PRODUCT_IMAGE_FOLDER,
+    format,
+  });
+  if (!asset.publicId.startsWith(`${PRODUCT_IMAGE_FOLDER}/`)) {
     throw new Error("Unexpected Cloudinary upload response.");
   }
   return asset;

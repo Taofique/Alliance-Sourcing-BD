@@ -239,10 +239,89 @@ test("sidebar marks the exact page with aria-current and expands the active grou
 
 test("sidebar renders only working editor links", () => {
   const html = render(React.createElement(SidebarNav, { pathname: "/admin" }));
-  for (const href of ["/admin", "/admin/settings/contact", "/admin/settings/logos", "/admin/banners"]) {
+  for (const href of [
+    "/admin",
+    "/admin/settings/contact",
+    "/admin/settings/logos",
+    "/admin/banners",
+    "/admin/products/categories",
+    "/admin/products/subcategories",
+    "/admin/products/items",
+  ]) {
     assert.equal(html.includes(`href="${href}"`), true, href);
   }
+  // Matched against the whole href rather than as a bare substring, so a real
+  // child route such as /admin/products/items still has to pass on its own
+  // merits while the unbuilt /admin/products index stays rejected.
   for (const dead of ["/admin/products", "/admin/catalog", "/admin/services", "/admin/contact"]) {
-    assert.equal(html.includes(dead), false, dead);
+    assert.equal(html.includes(`href="${dead}"`), false, dead);
   }
+});
+/* -------------------------------------------------------------------------- */
+/*  Seeded product catalogue                                                  */
+/* -------------------------------------------------------------------------- */
+
+const {
+  initialProductCatalogue,
+  PRODUCT_IMAGE_FOLDER,
+} = require("../src/lib/product-defaults.ts");
+
+const seedProducts = initialProductCatalogue.flatMap((category) =>
+  category.subcategories.flatMap((subcategory) => subcategory.products),
+);
+
+test("seeded catalogue is the published 3 / 6 / 24 catalogue", () => {
+  assert.equal(initialProductCatalogue.length, 3);
+  assert.equal(
+    initialProductCatalogue.reduce(
+      (total, category) => total + category.subcategories.length,
+      0,
+    ),
+    6,
+  );
+  assert.equal(seedProducts.length, 24);
+});
+
+test("every seeded photograph sits in the product folder of one account", () => {
+  // These URLs were copied off the original site's Cloudinary account, so a URL
+  // left pointing at that account would render nothing once the optimiser is
+  // locked to ours. Asserting they all resolve to a single account means a
+  // partial re-paste shows up here instead of as broken images in production.
+  const clouds = new Set();
+
+  for (const product of seedProducts) {
+    const parsed = new URL(product.imageUrl);
+    assert.equal(parsed.protocol, "https:", product.name);
+    assert.equal(parsed.hostname, "res.cloudinary.com", product.name);
+    assert.equal(parsed.search, "", product.name);
+    assert.equal(parsed.hash, "", product.name);
+
+    // A delivery URL is /<account>/image/upload/[v<n>/]<public id>.
+    const cloud = parsed.pathname.split("/")[1];
+    const marker = `/${cloud}/image/upload/`;
+    assert.equal(
+      parsed.pathname.startsWith(marker),
+      true,
+      `${product.name} is not a plain delivery URL: ${product.imageUrl}`,
+    );
+    clouds.add(cloud);
+
+    const path = parsed.pathname.slice(marker.length).replace(/^v\d+\//, "");
+    assert.equal(path.split(".")[0], product.publicId, product.name);
+    assert.equal(
+      product.publicId.startsWith(`${PRODUCT_IMAGE_FOLDER}/`),
+      true,
+      `${product.name} is outside ${PRODUCT_IMAGE_FOLDER}`,
+    );
+  }
+
+  assert.equal(clouds.size, 1, `seed data spans ${clouds.size} Cloudinary accounts`);
+});
+
+test("the image optimizer is locked to a single Cloudinary account", () => {
+  const clouds = (config.images?.remotePatterns ?? [])
+    .map((pattern) => String(pattern.pathname).split("/")[1])
+    .filter(Boolean);
+
+  assert.deepEqual(clouds, ["test-cloud"]);
 });

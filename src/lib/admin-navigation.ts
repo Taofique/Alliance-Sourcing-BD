@@ -6,8 +6,10 @@ import {
   Images,
   LayoutDashboard,
   Megaphone,
+  Package,
   PanelBottom,
   Settings,
+  Tags,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,9 +30,9 @@ export type AdminNavGroup = {
 
 /**
  * Only working editor links are listed. Sections still to be built — statistics,
- * features, workflow, services, catalog, CTA, About, Sister concern, Global
- * partners and Products — are added here as their routes land, so no
- * placeholder or dead link is ever rendered.
+ * features, workflow, services, catalog, CTA, About, Sister concern and Global
+ * partners — are added here as their routes land, so no placeholder or dead link
+ * is ever rendered.
  */
 export const adminNavigation: AdminNavGroup[] = [
   {
@@ -119,6 +121,30 @@ export const adminNavigation: AdminNavGroup[] = [
         href: "/admin/machinery/factory-pdf",
         icon: FileText,
         description: "The document behind the Own Factory download buttons.",
+      },
+    ],
+  },
+  {
+    label: "Products",
+    icon: Package,
+    children: [
+      {
+        label: "Categories",
+        href: "/admin/products/categories",
+        icon: Boxes,
+        description: "The top-level headings on the buying house page.",
+      },
+      {
+        label: "Subcategories",
+        href: "/admin/products/subcategories",
+        icon: Tags,
+        description: "The grouped headings inside each product category.",
+      },
+      {
+        label: "Products",
+        href: "/admin/products/items",
+        icon: Package,
+        description: "Every garment card, its photograph and its display order.",
       },
     ],
   },
