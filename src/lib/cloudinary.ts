@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
+import { PAGE_BANNER_FOLDER } from "@/lib/page-banner-defaults";
 
 type CloudinaryConfig = {
   cloudName: string;
@@ -98,6 +99,28 @@ export async function uploadFooterCtaImage(
   });
 
   if (!asset.publicId.startsWith("alliance-sourcing-bd/footer-cta/")) {
+    throw new Error("Unexpected Cloudinary upload response.");
+  }
+
+  return asset;
+}
+
+/**
+ * The per-page cover photographs, in one folder shared by every page banner.
+ * Same bounded wide-image profile as a banner, but kept apart from the banner
+ * and footer-CTA folders so the three can be rotated independently and a stored
+ * page-banner reference can never be confused with either of the others.
+ */
+export async function uploadPageBannerImage(
+  data: Buffer,
+  format: "webp" | "png",
+) {
+  const asset = await uploadAsset(data, {
+    folder: PAGE_BANNER_FOLDER,
+    format,
+  });
+
+  if (!asset.publicId.startsWith(`${PAGE_BANNER_FOLDER}/`)) {
     throw new Error("Unexpected Cloudinary upload response.");
   }
 

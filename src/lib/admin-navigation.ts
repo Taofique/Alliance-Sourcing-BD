@@ -83,6 +83,18 @@ export const adminNavigation: AdminNavGroup[] = [
       },
     ],
   },
+  {
+    label: "Pages",
+    icon: Images,
+    children: [
+      {
+        label: "About banner",
+        href: "/admin/pages/about-banner",
+        icon: Images,
+        description: "The cover photograph behind the About page heading.",
+      },
+    ],
+  },
 ];
 
 /** Segment-aware match: /admin/banners matches, /admin/banners-archive does not. */

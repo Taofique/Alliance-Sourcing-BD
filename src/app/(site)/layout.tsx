@@ -4,6 +4,7 @@ import Navbar from "@/components/layout/navbar";
 import Logo from "@/components/layout/logo";
 import Footer from "@/components/layout/footer";
 import PublicBrandingLoader from "@/components/common/public-branding-loader";
+import BackToTop from "@/components/common/back-to-top";
 import { getPublicSiteSettings } from "@/services/site-settings";
 
 export const runtime = "nodejs";
@@ -35,8 +36,9 @@ export default async function SiteLayout({ children }: SiteLayoutProps) {
       />
 
       {/*
-        The public branded loader. It lives in this layout, so a completed
-        pathname change is detected without the layout remounting.
+        The public branded loader. It lives in this layout, so the landing-page
+        introduction is shown from the server HTML and can stand down for a real
+        `loading.tsx` wait without the layout remounting.
       */}
       <PublicBrandingLoader
         logos={settings.logos.map((logo) => ({
@@ -44,6 +46,9 @@ export default async function SiteLayout({ children }: SiteLayoutProps) {
           alt: logo.title,
         }))}
       />
+
+      {/* Appears once the reader has scrolled far enough to want it. */}
+      <BackToTop />
     </div>
   );
 }

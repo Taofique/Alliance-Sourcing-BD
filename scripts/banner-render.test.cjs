@@ -23,6 +23,7 @@ const config = require("../next.config.ts").default;
 const BannerCarousel = require("../src/components/sections/banner-carousel.tsx").default;
 const { SidebarNav } = require("../src/components/admin/admin-shell.tsx");
 const {
+  adminNavigation,
   isAdminLinkActive,
   getAdminSection,
 } = require("../src/lib/admin-navigation.ts");
@@ -225,7 +226,14 @@ test("sidebar marks the exact page with aria-current and expands the active grou
     true,
     "an unrelated group stays collapsed and hidden",
   );
-  assert.equal(count(html, /aria-expanded="false"/g), 1);
+  // Exactly one group is open, and every other collapsible group is shut.
+  // Counted against the navigation itself so adding a group cannot silently
+  // invalidate this check.
+  const collapsible = adminNavigation.filter((group) => group.children).length;
+  const expanded = count(html, /aria-expanded="true"/g);
+  const collapsed = count(html, /aria-expanded="false"/g);
+  assert.equal(expanded, 1, "only the active group is open");
+  assert.equal(expanded + collapsed, collapsible, "every other group is collapsed");
   assert.equal(html.includes("Banners"), true);
 });
 

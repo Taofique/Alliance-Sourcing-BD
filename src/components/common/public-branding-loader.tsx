@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import BrandedLoaderScreen, {
   type LoaderLogo,
@@ -15,60 +15,93 @@ type PublicBrandingLoaderProps = {
 };
 
 type Phase = {
-  kind: "intro" | "transition";
-  /** Bumped per appearance so each one mounts a fresh screen. */
+  kind: "intro";
   id: number;
 };
 
 const INTRO_CEILING_MS = 1300;
-const TRANSITION_CEILING_MS = 400;
 const FADE_MS = 700;
 
+/** Landing page only: the branded introduction, once per browser session. */
+const LANDING_PATH = "/";
+const SEEN_KEY = "alliance-sourcing-bd:branding-intro-seen";
+
+function readSeen(): boolean {
+  try {
+    return window.sessionStorage.getItem(SEEN_KEY) === "1";
+  } catch {
+    // Private browsing or a blocked storage API. The loader still shows, which
+    // is the safe failure: a repeated intro beats no intro at all.
+    return false;
+  }
+}
+
+/** Stable no-op subscription: the seen-flag only changes during hydration. */
+function subscribeToSeen() {
+  return () => {};
+}
+
 /**
- * Drives the two decorative appearances of the branded loader on public pages:
- * a bounded introduction on first entry, and a brief transition after a
- * completed pathname change. Real route waits are handled separately by
- * `app/(site)/loading.tsx`, which also tells this component to stand down so
- * the two never overlap.
+ * The branded loader introduction for the landing page, and nothing else.
+ *
+ * It used to play two decorative appearances — a bounded intro on first entry
+ * and a short transition on every completed pathname change — which meant the
+ * splash replayed on every navbar click. Now it is scoped to `/` and to the
+ * first visit in a session, so moving between pages never shows it again.
+ *
+ * Genuine route waits are still reported by `app/(site)/loading.tsx`, which is
+ * rendered by React only while a route is actually streaming. That fallback
+ * tells this component to stand down so the two never overlap.
  *
  * This lives inside the persistent `(site)` layout, which does NOT remount on
- * navigation — the change is detected from `usePathname()` rather than from a
- * remount. `usePathname()` excludes the search string and hash, so a hash or
- * query-only change replays nothing.
+ * navigation. That is what makes the `sessionStorage` check the deciding factor
+ * rather than a remount: returning to `/` later in the session has already
+ * consumed the introduction.
  */
 export default function PublicBrandingLoader({
   logos,
 }: PublicBrandingLoaderProps) {
   const pathname = usePathname();
-  // Starts visible on purpose: the introduction has to be in the server HTML so
-  // it covers the very first paint instead of popping in after hydration. It is
-  // still a short, bounded overlay, never a fixed wait.
-  const [phase, setPhase] = useState<Phase | null>({ kind: "intro", id: 0 });
 
-  const previousPathname = useRef<string | null>(null);
-  const nextId = useRef(0);
+  // Starts visible on purpose, and only on the landing page: the introduction
+  // has to be in the server HTML so it covers the very first paint instead of
+  // popping in after hydration. It is a short, bounded overlay, never a wait.
+  const [phase, setPhase] = useState<Phase | null>(() =>
+    pathname === LANDING_PATH ? { kind: "intro", id: 0 } : null,
+  );
 
-  // A real route wait is already covering the screen, so the decorative overlay
-  // stands aside instead of stacking on top of it. Subscribed rather than read
-  // during render, so a `loading.tsx` overlay appearing or clearing re-renders
-  // this component and the intro/transition is skipped either way.
+  // A real route wait is already covering the screen, so the intro stands
+  // aside instead of stacking on top of it. Subscribed rather than read during
+  // render, so a `loading.tsx` overlay appearing or clearing re-renders this
+  // component and the intro is skipped either way.
   const routeWaitActive = useSyncExternalStore(
     subscribeLoadingOverlay,
     isLoadingOverlayActive,
     () => false,
   );
 
+  /**
+   * Read through `useSyncExternalStore` rather than into state from an effect:
+   * `sessionStorage` has no server equivalent, so the server snapshot has to
+   * report "not seen yet" while the client snapshot reports the truth. React
+   * then reconciles it during hydration, and the overlay is gone before the
+   * repeat-visit splash could paint.
+   */
+  const seenIntro = useSyncExternalStore(
+    subscribeToSeen,
+    readSeen,
+    () => false,
+  );
+
+  // Records the one-off introduction. Deliberately does not call `setState`.
   useEffect(() => {
-    if (previousPathname.current === null) {
-      previousPathname.current = pathname;
-      return;
+    if (pathname !== LANDING_PATH) return;
+
+    try {
+      window.sessionStorage.setItem(SEEN_KEY, "1");
+    } catch {
+      // Non-fatal: the intro is still bounded and removes itself on time.
     }
-
-    if (previousPathname.current === pathname) return;
-    previousPathname.current = pathname;
-
-    nextId.current += 1;
-    setPhase({ kind: "transition", id: nextId.current });
   }, [pathname]);
 
   // Backstop: whatever the screen decides, the overlay is removed from the
@@ -76,23 +109,22 @@ export default function PublicBrandingLoader({
   useEffect(() => {
     if (!phase) return;
 
-    const ceiling =
-      (phase.kind === "intro" ? INTRO_CEILING_MS : TRANSITION_CEILING_MS) +
-      FADE_MS +
-      400;
+    const timer = setTimeout(
+      () => setPhase(null),
+      INTRO_CEILING_MS + FADE_MS + 400,
+    );
 
-    const timer = setTimeout(() => setPhase(null), ceiling);
     return () => clearTimeout(timer);
   }, [phase]);
 
-  if (!phase || routeWaitActive) return null;
+  if (!phase || seenIntro || routeWaitActive) return null;
 
   return (
     <BrandedLoaderScreen
       key={phase.id}
       logos={logos}
       variant={phase.kind}
-      lockScroll={phase.kind === "intro"}
+      lockScroll
       onDone={() => setPhase(null)}
     />
   );
