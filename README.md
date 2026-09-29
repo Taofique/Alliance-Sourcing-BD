@@ -106,6 +106,72 @@ npm run test:faq
 See [`docs/global-partners-faq.md`](docs/global-partners-faq.md) for the data
 model, the seed script and the request flow.
 
+## Contact page
+
+`/contact` matches the live page — the same cover heading, the same three cards,
+the same form beside the map, and the same closing band, which is shared with
+`/buying-house` and `/global-partners` through
+[`ImageCtaSection`](src/components/sections/image-cta-section.tsx).
+
+The card content is **not** in the components. It lives in a `contact_cards`
+collection and the grid maps over whatever comes back:
+
+- **Database**: every card — its icon, label, supporting line, linked values,
+  optional action link and map embed.
+- **Static** (no database): the page heading, the message form and the closing
+  call to action, read from
+  [`src/lib/contact-sections.ts`](src/lib/contact-sections.ts).
+
+There is no assumed card count anywhere in the UI. A collection holding one card,
+three cards or seven renders that many, and the column count follows the count so
+a lone card is not stranded in a third of the page. With no active card the grid
+is dropped entirely and the page still shows the heading, the form and the band.
+
+### One-time setup: seed the cards
+
+```bash
+npm run init:contact-cards
+```
+
+Inserts the three cards the live page shows if they are not already there.
+Re-running is safe: it reports `Added 0 missing contact cards` and never edits a
+card an admin has already changed.
+
+### Editing the cards and reading messages
+
+Sign in at `/admin/login`, then use **Pages**:
+
+| Page | What it edits |
+| --- | --- |
+| `/admin/contact-cards` | Every card, its display order, icon and whether it is published, with search and paging. A card needs at least a description, a value or an action link, so an empty box cannot be saved. |
+| `/admin/contact-messages` | What the form has collected. Mark read or unread, and delete. |
+
+The map beside the form is not stored on the page. The first published card
+carrying a map embed supplies it, so the address and the pin can never disagree,
+and an office card drops the map by clearing one field.
+
+Links an editor types are restricted to `https`, `mailto` and `tel`, which is what
+stops a `javascript:` URL in Mongo from being served to a visitor.
+
+The form posts to `/api/contact`, the one public write in the project — a visitor
+has no session. It requires a JSON body, drops anything that fills the hidden
+`website` field, and length-caps and checks every field. A submission that trips
+the trap is answered with a plain success and nothing is stored.
+
+### Tests
+
+```bash
+npm run test:contact
+```
+
+18 tests over the parts that are not simply presentational: the seeded cards, the
+rule that a card must have something in it, the link-scheme guard, the closed
+enums and the message form. There are no snapshot or end-to-end tests — the page
+was verified against the real database and the running server instead.
+
+See [`docs/contact-page.md`](docs/contact-page.md) for the data model and the
+request flow.
+
 ## Getting Started
 
 First, run the development server:
