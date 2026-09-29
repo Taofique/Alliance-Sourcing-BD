@@ -155,6 +155,31 @@ export async function uploadProductImage(data: Buffer, format: "webp" | "png") {
 }
 
 /**
+ * A delivery URL for an already-stored factory profile PDF.
+ *
+ * Two things about the stored reference are easy to get wrong. A raw asset's
+ * public id carries its own extension — Cloudinary answered
+ * `…/documents/<uuid>.pdf` — so the extension is stripped before the url is
+ * built, because `format: "pdf"` puts it back and would otherwise produce
+ * `…<uuid>.pdf.pdf`, which 404s. And the url is signed: the stored plain one
+ * only resolves while anonymous delivery of raw assets is switched on, and
+ * these buttons should survive that setting being turned off.
+ */
+export function factoryPdfDeliveryUrl(publicId: string) {
+  const { cloudName, apiKey, apiSecret } = getConfig();
+
+  return cloudinary.url(publicId.replace(/\.pdf$/i, ""), {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+    resource_type: "raw",
+    format: "pdf",
+    sign_url: true,
+  });
+}
+
+/**
  * The factory profile PDF behind the "Own Factory" buttons.
  *
  * Uploaded as a `raw` asset rather than an image: a document must be delivered

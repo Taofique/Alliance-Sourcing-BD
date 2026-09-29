@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Container from "@/components/layout/container";
 import { factoryMachineryContent } from "@/lib/factory-machinery-sections";
-import type { FactoryPdf } from "@/types/machinery";
 
 type OwnFactorySectionProps = {
-  /** The admin-managed factory profile document, or null when none is stored. */
-  pdf: FactoryPdf | null;
+  /**
+   * The admin-managed factory profile, or null when none is stored. Carries the
+   * two links rather than the stored reference: the view url is signed per
+   * request, and the download url is our own route, because a browser will not
+   * save a cross-origin file however the markup is written.
+   */
+  pdf: { fileName: string; viewUrl: string; downloadUrl: string } | null;
 };
 
 /**
@@ -46,7 +50,7 @@ export default function OwnFactorySection({ pdf }: OwnFactorySectionProps) {
                 {content.actions.map((action) => (
                   <a
                     key={action.label}
-                    href={pdf.url}
+                    href={action.download ? pdf.downloadUrl : pdf.viewUrl}
                     {...(action.download
                       ? { download: pdf.fileName }
                       : { target: "_blank", rel: "noopener noreferrer" })}

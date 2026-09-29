@@ -5,6 +5,7 @@ import OwnFactorySection from "@/components/machinery/own-factory-section";
 import AdvancedMachinerySection from "@/components/machinery/advanced-machinery-section";
 import MachineryInventorySection from "@/components/machinery/machinery-inventory-section";
 import { getFactoryPdf, getMachineryInventory } from "@/services/machinery";
+import { factoryPdfDeliveryUrl } from "@/lib/cloudinary";
 import {
   factoryMachineryContent,
   factoryMachineryMetadata,
@@ -37,6 +38,22 @@ export default async function FactoryMachineryPage() {
     getFactoryPdf(),
   ]);
 
+  /*
+   * Two links, two reasons. "View" goes straight to Cloudinary because a
+   * signed url is enough to display the file. "Download" goes through our own
+   * route because the browser ignores `download` on a cross-origin link, and
+   * because the stored file name can only be set in a header we control. The
+   * url is signed per request rather than read from the database, so the page
+   * keeps working if anonymous delivery of raw assets is ever switched off.
+   */
+  const ownFactory = pdf
+    ? {
+        fileName: pdf.fileName,
+        viewUrl: factoryPdfDeliveryUrl(pdf.publicId),
+        downloadUrl: "/api/machinery/factory-pdf/download",
+      }
+    : null;
+
   return (
     <>
       <PageHero
@@ -47,7 +64,7 @@ export default async function FactoryMachineryPage() {
         breadcrumbLabel={factoryMachineryContent.hero.breadcrumbLabel}
       />
 
-      <OwnFactorySection pdf={pdf} />
+      <OwnFactorySection pdf={ownFactory} />
 
       <AdvancedMachinerySection />
 
