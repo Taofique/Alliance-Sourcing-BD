@@ -25,6 +25,9 @@ export const factoryMachineryContent = {
     subheading: "The Ways to Keep Business Growing Since 2007",
     description:
       "Are you interested to know details about our factory, production system and company policy at a glance? Please have a look at the provided pdf file.",
+    /** The same photograph the "Thread Sucking Machine" highlight uses. */
+    image: "/thread-sucking-machine.png",
+    imageAlt: "Thread cutting machine in the Alliance Sourcing BD factory",
     actions: [
       { label: "Download PDF", download: true },
       { label: "View PDF", download: false },
